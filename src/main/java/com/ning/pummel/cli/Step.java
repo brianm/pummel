@@ -1,4 +1,4 @@
-package org.skife.pummel.cli;
+package com.ning.pummel.cli;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -7,7 +7,7 @@ import org.mvel.MVEL;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
-import org.skife.pummel.Fight;
+import com.ning.pummel.Fight;
 
 import java.io.BufferedReader;
 import java.io.File;

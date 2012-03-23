@@ -1,11 +1,11 @@
-package org.skife.pummel.cli;
+package com.ning.pummel.cli;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
-import org.skife.pummel.Fight;
+import com.ning.pummel.Fight;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-@Command(name = "limit")
+@Command(name = "limit", description = "find the lowest concurrency level at which response times stay below a threshold at a certain percentile")
 public class Limit implements Callable<Void>
 {
     @Option(name = {"-m", "--max"}, title = "max-requests", description = "Maximum number of requests to execute")

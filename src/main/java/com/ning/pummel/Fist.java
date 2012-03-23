@@ -1,4 +1,4 @@
-package org.skife.pummel;
+package com.ning.pummel;
 
 import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteStreams;

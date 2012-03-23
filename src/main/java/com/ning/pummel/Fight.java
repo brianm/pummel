@@ -1,4 +1,4 @@
-package org.skife.pummel;
+package com.ning.pummel;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 

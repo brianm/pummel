@@ -1,11 +1,11 @@
-package org.skife.pummel.cli;
+package com.ning.pummel.cli;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
-import org.skife.pummel.Fist;
-import org.skife.pummel.Poll;
+import com.ning.pummel.Fist;
+import com.ning.pummel.Poll;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-@Command(name = "go", description = "Go beat up a server")
+@Command(name = {"benchmark", "go"}, description = "Go beat up a server")
 public class Benchmark implements Callable<Void>
 {
     @Option(name = {"-c", "--concurrency"}, description = "concurrency -- how many requests to keep in flight at once")

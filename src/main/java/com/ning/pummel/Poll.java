@@ -1,4 +1,4 @@
-package org.skife.pummel;
+package com.ning.pummel;
 
 public class Poll
 {

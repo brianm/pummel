@@ -1,4 +1,4 @@
-package org.skife.pummel.cli;
+package com.ning.pummel.cli;
 
 
 
