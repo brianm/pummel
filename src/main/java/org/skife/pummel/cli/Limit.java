@@ -19,8 +19,11 @@ public class Limit implements Callable<Void>
     @Option(name = {"-m", "--max"}, title = "max-requests", description = "Maximum number of requests to execute")
     public int maxRequests = -1;
 
-    @Option(name = "--start", description = "initial concurrency level, defaults to 100")
+    @Option(name = {"-s", "--start"}, description = "initial concurrency level, defaults to 100")
     public int start = 1;
+
+    @Option(name={"-l", "--labels"}, description = "Show column labels")
+    public boolean labels = false;
 
     @Option(name = {"-t", "--target"}, description = "target 99th percentile threshold, default is 100")
     public long target = 100L;
@@ -53,38 +56,51 @@ public class Limit implements Callable<Void>
             urls.add(line);
         }
 
+
+        if(labels) {System.out.println("clients\tlatency\treqs/sec");}
+
         int best = start;
         double best_perc = 0;
         int concurrency = start;
         double result;
+        double reqs_per_sec;
         while ((result = new Fight(concurrency, urls, percentile).call()) < target) {
-            System.out.printf("%d\t%f\n", concurrency, result);
+            reqs_per_sec = ((1000 / result) * concurrency);
+            System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
             best = concurrency;
             best_perc = result;
             concurrency = concurrency * 2;
         }
-        System.out.printf("%d\t%f\n", concurrency, result);
+        reqs_per_sec = ((1000 / result) * concurrency);
+        System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
 
         int increment = (int) Math.sqrt((concurrency));
         concurrency = concurrency / 2;
         while ((result = new Fight(concurrency, urls, percentile).call()) < target) {
-            System.out.printf("%d\t%f\n", concurrency, result);
+            reqs_per_sec = ((1000 / result) * concurrency);
+            System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
             best = concurrency;
             best_perc = result;
             concurrency += increment;
         }
-        System.out.printf("%d\t%f\n", concurrency, result);
+        reqs_per_sec = ((1000 / result) * concurrency);
+        System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
 
         increment = (int) Math.sqrt(Math.sqrt(concurrency));
         concurrency = concurrency - (2 * increment);
         while ((result = new Fight(concurrency, urls, percentile).call()) < target) {
-            System.out.printf("%d\t%f\n", concurrency, result);
+            reqs_per_sec = ((1000 / result) * concurrency);
+            System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
             best = concurrency;
             best_perc = result;
             concurrency += increment;
         }
-        System.out.printf("%d\t%f\n", concurrency, result);
-        System.out.printf("%d\t%f\n", best, best_perc);
+        reqs_per_sec = ((1000 / result) * concurrency);
+        System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
+
+        reqs_per_sec = ((1000 / best_perc) * best);
+        System.out.printf("%d\t%.2f\t%.2f\n", best, best_perc, reqs_per_sec);
+
         return null;
     }
 }
