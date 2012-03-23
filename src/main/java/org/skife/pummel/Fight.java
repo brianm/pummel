@@ -8,20 +8,18 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Fight implements Callable<Double>
+public class Fight implements Callable<DescriptiveStatistics>
 {
     private final int          concurrency;
     private final List<String> urls;
-    private final double percentile;
 
-    public Fight(int concurrency, List<String> urls, double percentile)
+    public Fight(int concurrency, List<String> urls)
     {
         this.concurrency = concurrency;
         this.urls = urls;
-        this.percentile = percentile;
     }
 
-    public Double call() throws Exception
+    public DescriptiveStatistics call() throws Exception
     {
         ExecutorService exec = Executors.newFixedThreadPool(concurrency);
         ExecutorCompletionService<Poll> ecs = new ExecutorCompletionService<Poll>(exec);
@@ -36,7 +34,7 @@ public class Fight implements Callable<Double>
                 Poll poll = ecs.take().get();
                 stats.addValue(poll.getTime());
             }
-            return stats.getPercentile(percentile);
+            return stats;
         }
         finally {
             exec.shutdown();

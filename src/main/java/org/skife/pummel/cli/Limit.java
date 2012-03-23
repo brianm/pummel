@@ -1,6 +1,7 @@
 package org.skife.pummel.cli;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
@@ -22,7 +23,7 @@ public class Limit implements Callable<Void>
     @Option(name = {"-s", "--start"}, description = "initial concurrency level, defaults to 100")
     public int start = 1;
 
-    @Option(name={"-l", "--labels"}, description = "Show column labels")
+    @Option(name = {"-l", "--labels"}, description = "Show column labels")
     public boolean labels = false;
 
     @Option(name = {"-t", "--target"}, description = "target 99th percentile threshold, default is 100")
@@ -57,49 +58,55 @@ public class Limit implements Callable<Void>
         }
 
 
-        if(labels) {System.out.println("clients\tlatency\treqs/sec");}
+        if (labels) {System.out.printf("clients\ttp%.2f\tmean\treqs/sec\n", percentile);}
 
-        int best = start;
-        double best_perc = 0;
+        int best_concurency = start;
         int concurrency = start;
-        double result;
+        DescriptiveStatistics result;
+        DescriptiveStatistics best_result = null;
         double reqs_per_sec;
-        while ((result = new Fight(concurrency, urls, percentile).call()) < target) {
-            reqs_per_sec = ((1000 / result) * concurrency);
-            System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
-            best = concurrency;
-            best_perc = result;
+        double res = 1;
+        while ((result = new Fight(concurrency, urls).call()).getPercentile(percentile) < target) {
+            res = result.getPercentile(percentile);
+            reqs_per_sec = ((1000 / result.getMean()) * concurrency);
+            System.out.printf("%d\t%.2f\t%.2f\t%.2f\n", concurrency, res, result.getMean(), reqs_per_sec);
+            best_concurency = concurrency;
+            best_result = result;
             concurrency = concurrency * 2;
         }
-        reqs_per_sec = ((1000 / result) * concurrency);
-        System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
+        reqs_per_sec = ((1000 / result.getMean()) * concurrency);
+        System.out.printf("%d\t%.2f\t%.2f\t%.2f\n", concurrency, result.getPercentile(percentile), result.getMean(), reqs_per_sec);
 
         int increment = (int) Math.sqrt((concurrency));
         concurrency = concurrency / 2;
-        while ((result = new Fight(concurrency, urls, percentile).call()) < target) {
-            reqs_per_sec = ((1000 / result) * concurrency);
-            System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
-            best = concurrency;
-            best_perc = result;
+        while ((result = new Fight(concurrency, urls).call()).getPercentile(percentile) < target) {
+            res = result.getPercentile(percentile);
+            reqs_per_sec = ((1000 / result.getMean()) * concurrency);
+            System.out.printf("%d\t%.2f\t%.2f\t%.2f\n", concurrency, res, result.getMean(), reqs_per_sec);
+            best_concurency = concurrency;
+            best_result = result;
             concurrency += increment;
         }
-        reqs_per_sec = ((1000 / result) * concurrency);
-        System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
+        reqs_per_sec = ((1000 / result.getMean()) * concurrency);
+        System.out.printf("%d\t%.2f\t%.2f\t%.2f\n", concurrency, result.getPercentile(percentile), result.getMean(), reqs_per_sec);
 
         increment = (int) Math.sqrt(Math.sqrt(concurrency));
         concurrency = concurrency - (2 * increment);
-        while ((result = new Fight(concurrency, urls, percentile).call()) < target) {
-            reqs_per_sec = ((1000 / result) * concurrency);
-            System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
-            best = concurrency;
-            best_perc = result;
+        while ((result = new Fight(concurrency, urls).call()).getPercentile(percentile) < target) {
+            res = result.getPercentile(percentile);
+            reqs_per_sec = ((1000 / result.getMean()) * concurrency);
+            System.out.printf("%d\t%.2f\t%.2f\t%.2f\n", concurrency, res, result.getMean(), reqs_per_sec);
+            best_concurency = concurrency;
+            best_result = result;
             concurrency += increment;
         }
-        reqs_per_sec = ((1000 / result) * concurrency);
-        System.out.printf("%d\t%.2f\t%.2f\n", concurrency, result, reqs_per_sec);
+        reqs_per_sec = ((1000 / result.getMean()) * concurrency);
+        System.out.printf("%d\t%.2f\t%.2f\t%.2f\n", concurrency, result.getPercentile(percentile), result.getMean(), reqs_per_sec);
 
-        reqs_per_sec = ((1000 / best_perc) * best);
-        System.out.printf("%d\t%.2f\t%.2f\n", best, best_perc, reqs_per_sec);
+
+        assert best_result != null;
+        reqs_per_sec = ((1000 / best_result.getMean()) * best_concurency);
+        System.out.printf("%d\t%.2f\t%.2f\t%.2f\n", best_concurency, best_result.getPercentile(percentile), best_result.getMean(), reqs_per_sec);
 
         return null;
     }
