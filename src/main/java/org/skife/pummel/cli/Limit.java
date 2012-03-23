@@ -58,7 +58,7 @@ public class Limit implements Callable<Void>
         }
 
 
-        if (labels) {System.out.printf("clients\ttp%.2f\tmean\treqs/sec\n", percentile);}
+        if (labels) {System.out.printf("clients\ttp%.1f\tmean\treqs/sec\n", percentile);}
 
         int best_concurency = start;
         int concurrency = start;

@@ -13,7 +13,7 @@ public class Main
     {
         //noinspection unchecked
         Cli.buildCli("pummel", Callable.class)
-           .withCommands(Benchmark.class, Analyze.class, Limit.class, Help.class)
+           .withCommands(Benchmark.class, Analyze.class, Limit.class, Step.class, Help.class)
            .withDefaultCommand(Help.class)
            .build().parse(args).call();
 
