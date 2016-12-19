@@ -1,1 +1,1 @@
-Use [ning/pummel](http://github.com/ning/pummel) instead of this.
+In process of being rewritten :-)
